@@ -1,0 +1,20 @@
+version: '2'
+services:
+  web:
+    image: ntsdocker/site-treinamentos:v1
+    container_name: site-v1
+    restart: always
+    ports:
+      - '8023:80'
+  web2:
+    image: ntsdocker/site-treinamentos:v2
+    container_name: site-v2
+    restart: always
+    ports:
+      - '8024:80'
+  web3:
+    image: ntsdocker/site-treinamentos:v3
+    container_name: site-v3
+    restart: always
+    ports:
+      - '8025:80'
