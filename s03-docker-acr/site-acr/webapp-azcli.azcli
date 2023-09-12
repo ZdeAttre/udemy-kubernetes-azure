@@ -1,0 +1,68 @@
+# Login no Azure
+az login
+
+# Variáveis
+rg=rg-containers
+local=eastus
+acr=acrcontainersappss
+
+# Criar grupo de recursos
+az group create -n $rg -l $local
+
+# Checar se o nome do ACR está em uso
+az acr check-name -n $acr
+
+# Criar o ACR
+az acr create -n $acr -g $rg --sku Basic --admin-enabled true
+
+# Mostrar endpoint do ACR
+az acr show-endpoints -n $acr
+
+# Listar os ACRs
+az acr list -o table
+
+# Detalhes do ACR
+az acr show -n $acr
+
+# Push da imagem para o ACR
+# Variáveis
+img=site-acr-cli
+
+# Build do Dockerfile
+docker build -t $img .
+
+# Login no ACR
+az acr login -n $acr
+
+# Tag da imagem
+docker tag $img $acr.azurecr.io/$img
+
+# Push da imagem para o ACR
+docker push $acr.azurecr.io/$img
+
+# Criar App Service Plan e App Service for Containers
+# Variáveis
+appplan=plan-containers
+appservice=appsvccontainersacr
+
+# Criar Plano de aplicativo com SKU S1
+az appservice plan create -g $rg -n $appplan --sku S1 -l $local --is-linux
+
+# Criar App Service for Containers
+az webapp create -g $rg -p $appplan -n $appservice -i $acr.azurecr.io/$img
+
+# Habilitar Deployment Continuous
+az webapp deployment container config --enable-cd true -n $appservice -g $rg
+
+# Obter URL para ser usada paraconfigurar webhooks para implantação contínua
+cicdurl=$(az webapp deployment container show-cd-url -n $appservice -g $rg --query CI_CD_URL --output tsv)
+
+# Criar WebHook no ACR
+webhook=webhookacrlatest
+az acr webhook create -n $webhook -r $acr -g $rg --actions push --uri $cicdurl --scope $img 
+
+# Listar eventos do Webhook
+az acr webhook list-events -n $webhook -r $acr
+
+# Pingar o Webhook
+az acr webhook ping -n $webhook -r $acr

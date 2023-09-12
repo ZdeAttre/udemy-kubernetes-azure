@@ -1,2 +1,26 @@
-#Login no Azure
+# Login no Azure
 az login
+
+# Build da imagem localmente
+docker build -t site-acr .
+
+# Login no ACR
+az acr login --name <ACR NAME>
+
+# Tag na imagem local
+docker tag site-acr <ACR LOGIN SERVER>/site-acr
+
+# Push para o ACR
+docker push <ACR LOGIN SERVER>/site-acr
+
+# Pull do ACR para a máquina local
+docker pull <ACR LOGIN SERVER>/site-acr
+
+# Rodar imagem vindo do ACR
+docker run -d -p 8080:80 <ACR LOGIN SERVER>/site-acr
+
+# Listar containers locais
+docker container ls
+
+# Parar Docker containeeredeAA
+docker stop <CONTAINER ID>
