@@ -1,0 +1,29 @@
+# Login na Azure
+az login
+
+# Variáveis
+rg=rg-aks-cli
+local=eastus
+aks=aks-cli
+acr=aksacrazcli
+
+# Criar Grupo de Recursos
+az group create -n $rg -l $local
+
+# Provisionando AKS da forma mais simples
+az aks create -g $rg -n $aks --node-count 1
+
+# Listando AKS
+az aks list -o yaml
+
+# Criar ACR
+az acr create -n $acr -g $rg --sku basic
+
+# Verificar se o ACR está acessível no cluster AKS
+az aks check-acr -n $aks -g $rg --acr $acr.azurecr.io
+
+# Ativar admin user
+az acr update -g $rg -n $acr --admin-enabled true
+
+# Anexar o ACR ao cluster do AKS
+az aks update -g $rg -n $aks --attach-acr $acr

@@ -1,0 +1,37 @@
+# Login no Azure
+az login
+
+# Variáveis
+rg=rg-aks-cli
+local=eastus
+aks=aks-cli
+
+# Criar Grupo de Recursos
+az group create -n $rg -l $local
+
+# Provisionando AKS da forma mais simples
+az aks create -g $rg -n $aks --node-count 1
+
+# Listando AKS
+az aks list -o yaml
+
+# Url do AKS
+az aks browse -g $rg -n $aks
+
+# Detalhes do AKS
+az aks show -n $aks -g $rg -o yaml
+
+# Parar o AKS
+az aks stop -n $aks -g $rg
+
+# Iniciar o AKS
+az aks start -n $aks -g $rg
+
+# Excluir o AKS
+az aks delete -n $aks -g $rg
+
+# Exibir os nomes dos Grupos de Recursos
+az group list --query '[].name' --output tsv
+
+# Excluir os Grupos de Recursos 
+az group delete -n $rg -y
